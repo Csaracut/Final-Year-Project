@@ -9,19 +9,18 @@ from matplotlib.widgets import Slider
 #function to graph equation of motion 
 def graph(t, solver, linear_eq_theory):
     """defines function to plot graph"""
-    vel, non_linear, linear, time1, time2 = solver
-    fig, ax = plt.subplots(1, 1)
-    line2, = plt.plot(time2, non_linear, label="non-linear")
-    #plot analytical solution and numerical solution
-    line, = plt.plot(time1, linear, label="numerical solution", alpha=0.5)
-    line3, = plt.plot(t, linear_eq_theory, 'r--', label="analytical theory", alpha=0.5)
+    vel_linear, vel_nonliner, non_linear, linear, time1, time2 = solver
     
-    #plot kinetic and potential energy of system
-    # line4, = plt.plot(time1, 0.5 * m * (pow(vel, 2)), label="kinetic energy")
-    # line5, = plt.plot(time1, m * g * l * (1 - cos(linear)), label="potential energy")
+    fig, ax = plt.subplots(1, 1)
+    line2, = plt.plot(time2, non_linear, label="non-linear", alpha=0.5, color="green")
+    
+    #plot analytical solution and numerical solution
+    line, = plt.plot(time1, linear, label="numerical solution", alpha=0.5, color="blue")
+    line3, = plt.plot(t, linear_eq_theory, label="analytical theory", alpha=0.25, color="orange")
     
     #plot the sum of the kinetic and potential energies
-    line6, = plt.plot(time1, (0.5 * m * (pow(vel, 2))) + (m * g * l * (1 - cos(linear))), label="total energy")
+    line6, = plt.plot(time1, (0.5 * m * (pow(vel_linear, 2))) + (m * g * l * (1 - cos(linear))), label="liner mechanical energy", color="red")
+    line7, = plt.plot(time1, (0.5 * m * (pow(vel_nonliner, 2))) + (m * g * l * (1 - cos(non_linear))), label="non_linear mechanical energy", color="black")
         
     plt.title("Motion of Pendulum")
     plt.xlabel("Time")
@@ -45,11 +44,11 @@ def solver(y0, t):
                                            method = "RK45",
                                            t_eval=t)
     
-    result_linear, vel = linear_eq_sol.y
-    result_non_linear, b = non_linear_sol.y
+    result_linear, vel_linear = linear_eq_sol.y
+    result_non_linear, vel_nonlinear = non_linear_sol.y
     time1 = linear_eq_sol.t
     time2 = non_linear_sol.t
-    return (vel, result_non_linear, result_linear, time1, time2)
+    return (vel_linear, vel_nonlinear, result_non_linear, result_linear, time1, time2)
 
 
 def non_linear_eq(t, y0):
