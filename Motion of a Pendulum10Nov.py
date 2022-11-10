@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import time
     
     
-def graph(time, theta1, theta2, theta3, vel1, vel2, vel3, linear_eq_theory):
+def graph(time, theta1, theta2, theta3, linear_eq_theory, vel1, vel2, vel3):
     
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=True)
     
     line1, = ax1.plot(time, theta2, label="Non Linear")
     line2, = ax1.plot(time, theta3, label="Linear")
-    # line3, = ax1.plot(time, linear_eq_theory, label="analytical")
+    line3, = ax1.plot(time, linear_eq_theory, label="analytical")
     
     line4, = ax2.plot(time, theta1, label="2d Pendulum")
     
@@ -59,12 +59,12 @@ def linear_eq_theta(y, t):
     
     return np.array([ddthetadt, dthetadt])
 
-def linear_eq_theory(t, theta):
+def linear_eq_theory(t, theta0):
     
     OMEGA = sqrt(G / L)
-    theta1 = theta * cos(OMEGA * t)
+    result = theta0 * cos(OMEGA * t)
     
-    return theta1
+    return result
 
 
 def runge_kutta_2dPendulum(y, t, dt):
@@ -151,7 +151,7 @@ def main():
         theta3 = np.append(theta3, y2[1])
         vel3 = np.append(vel3, y2[0])
     
-    graph(time, theta1, theta2, theta3, vel1, vel2, vel3, linear_eq_theory(t, theta0))
+    graph(time, theta1, theta2, theta3, linear_eq_theory(time, theta0), vel1, vel2, vel3)
         
         
 if __name__ == "__main__":
