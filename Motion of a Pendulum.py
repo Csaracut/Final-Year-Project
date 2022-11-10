@@ -11,7 +11,7 @@ def graph(time, theta1, theta2, theta3, vel1, vel2, vel3, linear_eq_theory):
     
     line1, = ax1.plot(time, theta2, label="Non Linear")
     line2, = ax1.plot(time, theta3, label="Linear")
-    line3, = ax1.plot(time, linear_eq_theory, label="analytical")
+    # line3, = ax1.plot(time, linear_eq_theory, label="analytical")
     
     line4, = ax2.plot(time, theta1, label="2d Pendulum")
     
