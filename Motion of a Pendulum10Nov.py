@@ -107,7 +107,7 @@ def main():
     theta0 = np.radians(INIT_ANGLE) #initial angle
     phi0 = 0 #intial angle
     lin_vel0 = 0 #initial linear velocity
-    ang_vel0 = 0 #initial
+    ang_vel0 = 0 #initial angular velocity
     
     #time values
     t0 = 0
