@@ -15,7 +15,7 @@ def graph(time, theta1, theta2, theta3, linear_eq_theory, x, y, vel1, vel2, vel3
     line3, = ax1.plot(time, linear_eq_theory, label="analytical")
     
     line4, = ax2.plot(time, theta1, label="2d Pendulum")
-    line5, = ax4.plot(y, x, label="x, y co-ords 2d Pendulum")
+    line5, = ax4.plot(x, y, label="x, y co-ords 2d Pendulum")
     
     line6, = ax3.plot(time, (0.5 * M * (pow(vel3, 2))) + (M * G * L * (1 - cos(theta3))), label="linear mechanical energy")
     line7, = ax3.plot(time, (0.5 * M * (pow(vel2, 2))) + (M * G * L * (1 - cos(theta2))), label="non_linear mechanical energy", color="black")
@@ -23,17 +23,19 @@ def graph(time, theta1, theta2, theta3, linear_eq_theory, x, y, vel1, vel2, vel3
     ax1.set_title("1d Pendulum")
     ax2.set_title("2d Pendulum")
     ax3.set_title("Total mechanical energies")
+    ax4.set_title("Focault Pendulum")
     
     ax1.set_ylabel("Position")
     ax2.set_ylabel("Position")
-    ax3.set_xlabel("Time")
+    ax4.set_ylabel("Y")
     
-    ax4.set_xlim([-10, 10])
-    ax4.set_ylim([-10, 10])    
+    ax3.set_xlabel("Time")
+    ax4.set_xlabel("X")   
     
     ax1.legend(loc="best")
     ax2.legend(loc="best")
     ax3.legend(loc="best")
+    ax4.legend(loc="best")
     
     plt.show()
 
@@ -41,10 +43,10 @@ def graph(time, theta1, theta2, theta3, linear_eq_theory, x, y, vel1, vel2, vel3
 def pendulum_2d(y, t):
     
     dthetadt, dphidt, theta, phi = y[0][0], y[0][1], y[0][2], y[0][3]
-    dydt, dxdt, init_x, init_y = y[1][0], y[1][1], y[1][2], y[1][3]
+    dxdt, dydt, init_x, init_y = y[1][0], y[1][1], y[1][2], y[1][3]
     
     ddxdt = 2 * dydt * OMEGA * sin(phi) - (G / L) * init_x / L 
-    ddydt = - 2 * dxdt * OMEGA * sin(phi) - (G / L) * init_y / L 
+    ddydt = -2 * dxdt * OMEGA * sin(phi) - (G / L) * init_y / L 
     
     ddthetadt = dphidt**2 * cos(theta) * sin(theta) - (G/L) * sin(theta)
     ddphidt = (-2 * dthetadt * dphidt) / tan(theta)
@@ -123,19 +125,20 @@ def main():
     M = 1
     G = 9.81
     L = 1
-    INIT_ANGLE = 5
-    theta0 = np.radians(INIT_ANGLE) #initial angle
-    phi0 = 1 #intial angle
-    lin_vel0 = 0 #initial theta velocity
-    ang_vel0 = 0 #initial phi velocity
+    INIT_THETA_ANGLE = 5
+    INIT_PHI_ANGLE = 45
+    theta0 = np.radians(INIT_THETA_ANGLE) #initial angle
+    phi0 = np.radians(INIT_PHI_ANGLE) #intial angle
+    theta_vel0 = 0 #initial theta velocity
+    phi_vel0 = 0 #initial phi velocity
     init_x = 0
     init_y = 0
-    init_xvel = 0
-    init_yvel = 0
+    dxdt0 = 0
+    dydt0 = 0
 
     #time values
     t0 = 0
-    tf = 100
+    tf = 10
     dt = 0.025
     time = np.arange(t0, tf, dt)
     
@@ -150,9 +153,9 @@ def main():
     vel3 = np.array([]) #1d linear
     
     #inital conditions for angular displacement and velocity
-    y0 = np.array([[lin_vel0, ang_vel0, theta0, phi0], [init_xvel, init_yvel, init_x, init_y]]) #2d pendulum [theta_velocity, phi_velocity, theta, phi]
-    y1 = np.array([lin_vel0, theta0]) #1d non linear [linear_velocity, theta]
-    y2 = np.array([lin_vel0, theta0]) #1d linear [linear_velocity, theta]
+    y0 = np.array([[theta_vel0, phi_vel0, theta0, phi0], [dxdt0, dydt0, init_x, init_y]]) #2d pendulum 
+    y1 = np.array([theta_vel0, theta0]) #1d non linear [linear_velocity, theta]
+    y2 = np.array([theta_vel0, theta0]) #1d linear [linear_velocity, theta]
 
     #final x and y co-ordinates
     final_xpos = np.array([])
