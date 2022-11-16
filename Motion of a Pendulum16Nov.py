@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import time
     
     
-def graph(time, theta1, theta2, theta3, linear_eq_theory, x, y, vel1, vel2, vel3):
+def graph(time, theta1, theta2, theta3, theta4, x, y, vel1, vel2, vel3):
     
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=True)
     fig1, ax4 = plt.subplots(1, 1)
     
     line1, = ax1.plot(time, theta2, label="Non Linear")
     line2, = ax1.plot(time, theta3, label="Linear")
-    line3, = ax1.plot(time, linear_eq_theory, label="analytical")
+    line3, = ax1.plot(time, theta4, label="analytical")
     
     line4, = ax2.plot(time, theta1, label="2d Pendulum")
     line5, = ax4.plot(x, y, label="x, y co-ords 2d Pendulum")
@@ -41,7 +41,6 @@ def graph(time, theta1, theta2, theta3, linear_eq_theory, x, y, vel1, vel2, vel3
 
 
 def pendulum_2d(y, t):
-    
     dthetadt, dphidt, theta, phi = y[0][0], y[0][1], y[0][2], y[0][3]
     dxdt, dydt, init_x, init_y = y[1][0], y[1][1], y[1][2], y[1][3]
     
@@ -74,7 +73,6 @@ def linear_eq_theta(y, t):
     return np.array([ddthetadt, dthetadt])
 
 def linear_eq_theory(t, theta0):
-    
     omega = np.real(sqrt(G / L))
     result = theta0 * cos(omega * t)
     
@@ -131,21 +129,22 @@ def main():
     phi0 = np.radians(INIT_PHI_ANGLE) #intial angle
     theta_vel0 = 0 #initial theta velocity
     phi_vel0 = 0 #initial phi velocity
-    init_x = 0
-    init_y = 0
-    dxdt0 = 0
-    dydt0 = 0
+    init_x = 0 #initial x-coord
+    init_y = 0 #initial y-coord
+    dxdt0 = 0 #initial x velocity
+    dydt0 = 0 #initial y velocity
 
     #time values
-    t0 = 0
-    tf = 10
-    dt = 0.025
-    time = np.arange(t0, tf, dt)
-    
+    t0 = 0 #initial
+    tf = 1800 #final
+    dt = 0.025 #times step
+    time = np.arange(t0, tf, dt) #array of time values
+
     #final values for position
     theta1 = np.array([]) #2d pendulum
     theta2 = np.array([]) #1d non linear
     theta3 = np.array([]) #1d linear
+    theta4 = np.array([]) #1d analytical
     
     #final values for velocity
     vel1 = np.array([]) #2d pendulum
@@ -166,7 +165,7 @@ def main():
         y0[0] = y0[0] + runge_kutta_2dPendulum(y0, t, dt)[0]
         
         theta1 = np.append(theta1, y0[0][2])
-        vel1 = np.append(vel1, y0[0][1])
+        vel1 = np.append(vel1, y0[0][0])
             
     #get x and y position for 2d pendulum
     for t in time:
@@ -189,7 +188,12 @@ def main():
         theta3 = np.append(theta3, y2[1])
         vel3 = np.append(vel3, y2[0])
     
-    graph(time, theta1, theta2, theta3, linear_eq_theory(time, theta0), final_xpos, final_ypos, vel1, vel2, vel3)
+    #get values for linear analytical   
+    for t in time:
+        theta4 = np.append(theta4, linear_eq_theory(t+dt, theta0))
+        
+    #call graph function
+    graph(time, theta1, theta2, theta3, theta4, final_xpos, final_ypos, vel1, vel2, vel3)
         
         
 if __name__ == "__main__":
