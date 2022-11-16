@@ -75,8 +75,8 @@ def linear_eq_theta(y, t):
 
 def linear_eq_theory(t, theta0):
     
-    OMEGA = sqrt(G / L)
-    result = theta0 * cos(OMEGA * t)
+    omega = np.real(sqrt(G / L))
+    result = theta0 * cos(omega * t)
     
     return result
 
