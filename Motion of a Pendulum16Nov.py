@@ -41,23 +41,17 @@ def graph(time, theta1, theta2, theta3, theta4, x, y, vel1, vel2, vel3):
 
 
 def pendulum_2d(y, t):
-    dthetadt, dphidt, theta, phi = y[0][0], y[0][1], y[0][2], y[0][3]
-    dxdt, dydt, init_x, init_y = y[1][0], y[1][1], y[1][2], y[1][3]
-    
-    ddxdt = 2 * dydt * OMEGA * sin(phi) - (G / L) * init_x / L 
-    ddydt = -2 * dxdt * OMEGA * sin(phi) - (G / L) * init_y / L 
-    
+    dthetadt, dphidt, theta, phi = y[0], y[1], y[2], y[3]
+
     ddthetadt = dphidt**2 * cos(theta) * sin(theta) - (G/L) * sin(theta)
     ddphidt = (-2 * dthetadt * dphidt) / tan(theta)
     
-    result1 = np.array([ddthetadt, ddphidt, dthetadt, dphidt])
-    result2 = np.array([ddxdt, ddydt, dxdt, dydt])
+    result = np.array([ddthetadt, ddphidt, dthetadt, dphidt])
     
-    return np.array([result1, result2])
+    return result
 
 
 def non_linear_eq(y, t):
-
     dthetadt, theta = y[0], y[1]
     
     ddthetadt = -(G / L) * sin(theta)
@@ -65,7 +59,6 @@ def non_linear_eq(y, t):
     return np.array([ddthetadt, dthetadt])
 
 def linear_eq_theta(y, t):
-
     dthetadt, theta = y[0], y[1]
     
     ddthetadt = -(G / L) * theta
@@ -81,20 +74,14 @@ def linear_eq_theory(t, theta0):
 
 def runge_kutta_2dPendulum(y, t, dt):
     """Runge kutta method for 2d pendulum"""
-    k10 = pendulum_2d(y, t)[0]
-    k20 = pendulum_2d(y+0.5*k10*dt, t+0.5*dt)[0]
-    k30 = pendulum_2d(y+0.5*k20*dt, t+0.5*dt)[0]
-    k40 = pendulum_2d(y+k30*dt, t+dt)[0]
-    
-    k1 = pendulum_2d(y, t)[1]
-    k2 = pendulum_2d(y+0.5*k10*dt, t+0.5*dt)[1]
-    k3 = pendulum_2d(y+0.5*k20*dt, t+0.5*dt)[1]
-    k4 = pendulum_2d(y+k30*dt, t+dt)[1]
+    k1 = pendulum_2d(y, t)
+    k2 = pendulum_2d(y+0.5*k1*dt, t+0.5*dt)
+    k3 = pendulum_2d(y+0.5*k2*dt, t+0.5*dt)
+    k4 = pendulum_2d(y+k3*dt, t+dt)
 
-    result0 = dt * (k10 + (2 * k20) + (2 * k30) + k40) / 6  
-    result1 = dt * (k1 + (2 * k2) + (2 * k3) + k4) / 6  
+    result = dt * (k1 + (2 * k2) + (2 * k3) + k4) / 6  
 
-    return np.array([result0, result1])
+    return result
 
 def runge_kutta_1dPendulum_nonlinear(y, t, dt):
     """Runge kutta method for non linear solution"""
@@ -123,36 +110,32 @@ def main():
     M = 1
     G = 9.81
     L = 1
-    INIT_THETA_ANGLE = 5
+    INIT_THETA_ANGLE = 45
     INIT_PHI_ANGLE = 45
-    theta0 = np.radians(INIT_THETA_ANGLE) #initial angle
+    theta0 = np.radians(INIT_THETA_ANGLE)#initial angle
     phi0 = np.radians(INIT_PHI_ANGLE) #intial angle
     theta_vel0 = 0 #initial theta velocity
-    phi_vel0 = 0 #initial phi velocity
-    init_x = 0 #initial x-coord
-    init_y = 0 #initial y-coord
-    dxdt0 = 0 #initial x velocity
-    dydt0 = 0 #initial y velocity
+    phi_vel0 = 1 #initial phi velocity
 
     #time values
     t0 = 0 #initial
-    tf = 1800 #final
+    tf = 100 #final
     dt = 0.025 #times step
     time = np.arange(t0, tf, dt) #array of time values
 
-    #final values for position
+    #final values for spherical coordinates
     theta1 = np.array([]) #2d pendulum
     theta2 = np.array([]) #1d non linear
     theta3 = np.array([]) #1d linear
     theta4 = np.array([]) #1d analytical
     
-    #final values for velocity
+    #final values for velocities
     vel1 = np.array([]) #2d pendulum
     vel2 = np.array([]) #1d non linear
     vel3 = np.array([]) #1d linear
     
-    #inital conditions for angular displacement and velocity
-    y0 = np.array([[theta_vel0, phi_vel0, theta0, phi0], [dxdt0, dydt0, init_x, init_y]]) #2d pendulum 
+    #inital conditions for motion of pendulum
+    y0 = np.array([theta_vel0, phi_vel0, theta0, phi0]) #2d pendulum 
     y1 = np.array([theta_vel0, theta0]) #1d non linear [linear_velocity, theta]
     y2 = np.array([theta_vel0, theta0]) #1d linear [linear_velocity, theta]
 
@@ -162,18 +145,17 @@ def main():
 
     #get values for 2d pendulum
     for t in time:
-        y0[0] = y0[0] + runge_kutta_2dPendulum(y0, t, dt)[0]
+        y0 = y0 + runge_kutta_2dPendulum(y0, t, dt)
         
-        theta1 = np.append(theta1, y0[0][2])
-        vel1 = np.append(vel1, y0[0][0])
-            
-    #get x and y position for 2d pendulum
-    for t in time:
-        y0[1] = y0[1] + runge_kutta_2dPendulum(y0, t, dt)[1]
+        theta1 = np.append(theta1, y0[2])
+        vel1 = np.append(vel1, y0[0])
         
-        final_xpos = np.append(final_xpos, y0[1][2])        
-        final_ypos = np.append(final_ypos, y0[1][3])
-    
+        x = L * sin(y0[2]) * cos(y0[3])
+        y = L * sin(y0[2]) * sin(y0[3])
+        
+        final_xpos = np.append(final_xpos, x)
+        final_ypos = np.append(final_ypos, y)
+             
     #get values for 1d pendulum nonlinear
     for t in time:
         y1 = y1 + runge_kutta_1dPendulum_nonlinear(y1, t, dt)
